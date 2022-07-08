@@ -1,0 +1,338 @@
+最基础的 spring 是 useSpring，但同样的概念适用于所有动画原语。 我们来看一下...
+```JavaScript
+import { useSpring, animated } from 'react-spring'
+
+function App() {
+  const props = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
+  return <animated.div style={props}>I will fade in</animated.div>
+}
+```
+
+## 首先, 获取你的imports
+```JavaScript
+import { useSpring, animated } from 'react-spring'
+```
+
+您需要动画原语本身，以及一个名为 animated 的特殊工厂。 这个库在 React 外部进行动画处理（出于性能原因）。 您的视图必须知道如何处理您传递给它的 animated props。 这就是 animated 的用途，它扩展了原生元素以接收动画值。
+## 然后,定义你的spring
+```JavaScript
+const props = useSpring({ to: { opacity: 1 }, from: { opacity: 0 } })
+```
+
+spring只是将值从一种状态转换为另一种状态。 更新是累积的，spring 会记住您传递的所有值。 您可以使用任意名称。 有几个保留关键字，例如“from”（用于基值）。 您可以在此处了解该 api。 收到的props 不是静态值！ 这些props是自我更新的，您不能在常规 div 等中使用它们。
+## 最后，将动画值绑定到您的视图
+```JavaScript
+return <animated.div style={props}>I will fade in</animated.div>
+```
+
+在组件的视图部分，您只需将这些props连接起来。确保扩展您想要使用动画制作动画的原生元素。 如果您在 web中使用 ，则动画包含所有有效的 html 元素（div、spans、svgs 等）。 如果您想在其他平台上为 React 组件、样式组件或元素设置动画，请执行以下操作：
+```JavaScript
+// React components
+const AnimatedDonut = animated(Donut)
+
+// React-native
+const AnimatedView = animated(View)
+
+// styled-components, emotion, etc.
+const AnimatedHeader = styled(animated.h1)`
+  ...;
+`
+```
+
+## 不要将您传递的值本身视为“styles”
+尽管您可以这样使用它们。
+```JavaScript
+function Text() {
+  const [flip, set] = useState(false)
+  const props = useSpring({
+    to: { opacity: 1 },
+    from: { opacity: 0 },
+    reset: true,
+    reverse: flip,
+    delay: 200,
+    config: config.molasses,
+    onRest: () => set(!flip),
+  })
+
+  return <animated.h1 style={props}>hello</animated.h1>
+}
+```
+
+随心所欲地使用它们，例如为属性设置动画
+```JavaScript
+function SVG() {
+  const [flip, set] = useState(false)
+  const { x } = useSpring({
+    reset: true,
+    reverse: flip,
+    from: { x: 0 },
+    x: 1,
+    delay: 200,
+    config: config.molasses,
+    onRest: () => set(!flip),
+  })
+
+  return (
+    <animated.svg
+      style={{ margin: 20, width: 80, height: 80 }}
+      viewBox="0 0 45 44"
+      strokeWidth="2"
+      fill="white"
+      stroke="rgb(45, 55, 71)"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeDasharray={156}
+      strokeDashoffset={x.to(x => (1 - x) * 156)}>
+      <polygon points={POINTS} />
+    </animated.svg>
+  )
+}
+```
+
+innerText,
+```JavaScript
+function Number() {
+  const [flip, set] = useState(false)
+  const { number } = useSpring({
+    reset: true,
+    reverse: flip,
+    from: { number: 0 },
+    number: 1,
+    delay: 200,
+    config: config.molasses,
+    onRest: () => set(!flip),
+  })
+
+  return <animated.div>{number.to(n => n.toFixed(2))}</animated.div>
+}
+```
+
+scrollTop/scrollLeft,
+```JavaScript
+
+function Scrolling() {
+  const [flip, set] = useState(false)
+
+  const words = ['We', 'came.', 'We', 'saw.', 'We', 'kicked', 'its', 'ass.']  
+const { scroll } = useSpring({
+    scroll: (words.length - 1) * 50,
+    from: { scroll: 0 },
+    reset: true,
+    reverse: flip,
+    delay: 200,
+    config: config.molasses,
+    onRest: () => set(!flip),
+  })
+
+  return (
+    <animated.div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: 60,
+        overflow: 'auto',
+        fontSize: '0.5em',
+      }}
+      scrollTop={scroll}>
+      {words.map((word, i) => (
+        <div
+          key={`${word}_${i}`}
+          style={{ width: '100%', height: 50, textAlign: 'center' }}>
+          {word}
+        </div>
+      ))}
+    </animated.div>
+  )
+}
+```
+
+## 预先插值
+spring几乎可是使用一切，它们不只是处理数字。
+- 颜色（名称、rgb、rgba、hsl、hsla、渐变）
+- CSS 变量（在 :root 上声明）及其后备
+- 绝对长度（cm、mm、in、px、pt、pc）
+- 相对长度（em、ex、ch、rem、vw、vh、vmin、vmax、%）
+- 角度（度、弧度、度数、转角）
+- Flex 和网格单元（fr 等）
+- 所有 HTML 属性
+- SVG路径（只要点数匹配，否则使用自定义插值）
+- 数组
+- 字符串模式（变换、边框、boxShadow 等）
+- 不可动画的字符串值（可见性、指针事件等）
+- ScrollTop/scrollLeft
+```JavaScript
+const props = useSpring({
+  vector: [0, 10, 30],
+  display: 'block',
+  padding: 20,
+  background: 'linear-gradient(to right, #009fff, #ec2f4b)',
+  transform: 'translate3d(0px,0,0) scale(1) rotateX(0deg)',
+  boxShadow: '0px 10px 20px 0px rgba(0,0,0,0.4)',
+  borderBottom: '10px solid #2D3747',
+  shape: 'M20,20 L20,380 L380,380 L380,20 L20,20 Z',
+  textShadow: '0px 5px 15px rgba(255,255,255,0.5)',
+  color: 'var(--darkModeColor)',
+})
+```
+
+## 速记
+仅在 Web 版本中，您可以避免使用 to 函数将多个动画值组合成一个转换字符串的样板，就像您在 v8 中所做的那样。
+相反，您可以尝试使用以下 shorthand props:之一在样式对象中定义动画值：
+- `x`, `y`, `z`
+- `translate`, `translateX`, `translateY`, `translate3d`
+- `rotate`, `rotateX`, `rotateY`, `rotate3d`
+- `scale`, `scaleX`, `scaleY`, `scale3d`
+- `skew`, `skewX`, `skewY`
+- `matrix`, `matrix3d`
+```JavaScript
+const { x, y } = useSpring({ x: 0, y: 0 })
+
+// v8
+import { to } from 'react-spring'
+const transform = to([x, y], (x, y) => `translate(${x}px, ${y}px)`)
+return <a.div style={{ transform }} />
+
+// v9
+return <a.div style={{ x, y }} />
+```
+
+这些简短的 props 将来会添加到@react-spring/native。 目前，它们仅存在于 @react-spring/web 中。 想要他们在本地？ 考虑提交 PR
+## 查看插值
+在您需要spring 变大或者变小 的情况下，每个动画值都可以在视图内进行插值，这是一个强大的工具。 调用的 interpolate 函数接受一个函数或一个可以形成范围的对象。 插值也可以形成链，允许您将一个计算引导到另一个计算或重用它们。 查看 shared-api 以获取对象描述。
+您可能想知道为什么您不总是在弹簧内插值。 视图插值可以快一点，而且占用的空间更少
+```JavaScript
+import { useSpring, animated, to } from 'react-spring'
+
+const { o, xyz, color } = useSpring({
+  from: { o: 0, xyz: [0, 0, 0], color: 'red' },
+  o: 1,
+  xyz: [10, 20, 5],
+  color: 'green',
+})
+
+return (
+  <animated.div
+    style={{
+      // If you can, use plain animated values like always, ...
+      // You would do that in all cases where values "just fit"
+      color,
+      // Unless you need to interpolate them
+      background: o.to(o => `rgba(210, 57, 77, ${o})`),
+      // Which works with arrays as well
+      transform: xyz.to((x, y, z) => `translate3d(${x}px, ${y}px, ${z}px)`),
+      // If you want to combine multiple values use the "interpolate" helper
+      border: to([o, color], (o, c) => `${o * 10}px solid ${c}`),
+      // You can also form ranges, even chain multiple interpolations
+      padding: o
+        .to({ range: [0, 0.5, 1], output: [0, 0, 10] })
+        .to(o => `${o}%`),
+      // Interpolating strings (like up-front) through ranges is allowed ...
+      borderColor: o.to({ range: [0, 1], output: ['red', '#ffaabb'] }),
+      // There's also a shortcut for plain, optionless ranges ...
+      opacity: o.to([0.1, 0.2, 0.6, 1], [1, 0.1, 0.5, 1]),
+    }}>
+    {o.to(n => n.toFixed(2)) /* innerText interpolation ... */}
+  </animated.div>
+)
+```
+
+## 补充说明
+### 动画 “自动”
+Hooks 与 renderprops 的不同之处在于它们不知道视图。 因此处理“auto”超出了 hooks api 的范围。 这听起来像是一种倒退，但考虑到使用钩子测量 auto 比以往任何时候都容易，并且它使以前很难实现的模式成为可能，例如嵌套 auto 内容。 查看 react-resize-aware、react-measure 等库。
+```JavaScript
+const [bind, { height }] = useMeasure()
+
+const props = useSpring({ height })
+
+return (
+  <animated.div style={{ overflow: 'hidden', ...props }}>
+    <div {...bind}>content</div>
+  </animated.div>
+)
+```
+
+## 模拟  css-keyframes
+有时您想通过一系列状态，例如 css 关键帧，您可以为此使用插值。
+```JavaScript
+/*
+0 % { transform: scale(1); }
+25 % { transform: scale(.97); }
+35 % { transform: scale(.9); }
+45 % { transform: scale(1.1); }
+55 % { transform: scale(.9); }
+65 % { transform: scale(1.1); }
+75 % { transform: scale(1.03); }
+100 % { transform: scale(1); }
+`*/
+
+const props = useSpring({ x: state ? 1 : 0 })
+
+return (
+  <animated.div
+    style={{
+      transform: props.x
+        .to({
+          range: [0, 0.25, 0.35, 0.45, 0.55, 0.65, 0.75, 1],
+          output: [1, 0.97, 0.9, 1.1, 0.9, 1.1, 1.03, 1],
+        })
+        .to(x => `scale(${x})`),
+    }}
+  />
+)
+```
+
+### 依赖数组
+除了 useChain 之外的每个钩子现在都支持一个 deps 参数，就像是useEffect用的那样
+每当更改依赖项时，都会处理更新，从而更新动画。 换言之，当所有依赖项未更改时，更新将被忽略。
+当传递一个依赖数组，或者使用函数创建 spring 对象时，useSpring 和 useSprings 挂钩各自返回一个 api 对象。 有关更多信息，请参阅命令和参考部分
+```JavaScript
+const [style, api] = useSpring({ x: 0, y: 0 }, [])
+useEffect(() => {
+  api.start({ x: 100, y: 100 })
+}, [])
+```
+
+```JavaScript
+const [style, api] = useSpring(() => ({ x: 0, y: 0 }))
+useEffect(() => {
+  api.start({ x: 100, y: 100 })
+}, [])
+```
+
+### Forwarding refs 和动画 HoC
+出于性能原因，动画 DOM 元素的属性直接通过使用 DOM 节点的引用进行动画更新，而不是通过 React 更新。 在内部，动画通过使用 ref 检查组件的类型来确定 DOM 元素和常规组件之间的区别。 这意味着如果你在一个用动画包裹的组件上使用 forwardRef，然后将该 ref 传递到一个 DOM 节点，动画将把该组件视为一个 DOM 节点本身，并且将停止触发 React 更新以在动画道具更改时进行插值 .例如:
+```JavaScript
+const MyAnimatedComponent = animated(({ value }) => <div>{value}</div>)
+
+const MyAnimatedComponentWithRefForwarding = animated(
+  forwardRef(({ value }, ref) => <div ref={ref}>{value}</div>)
+)
+
+const MyComponentWithSpring = () => {
+  const { value } = useSpring({
+    from: { value: 0 },
+    to: { value: 1 },
+  })
+
+  return (
+    <>
+      /* This component will automatically update as "value" changes */
+      <MyAnimatedComponent value={value} />
+      /* This component will not automatically update as "value" changes */
+      <MyAnimatedComponentWithRefForwarding value={value} />
+    </>
+  )
+}
+```
+
+您可以通过将 refs 作为常规 props 转发来解决此问题：
+```JavaScript
+const AnimatedComponent = animated(({ value, forwardedRef }) => (
+  <div ref={forwardedRef}>{value}</div>
+))
+
+const AnimatedComponentWithRefForwarding = useRef((props, ref) => (
+  <AnimatedComponent {...props} forwardedRef={ref} />
+))
+```
+

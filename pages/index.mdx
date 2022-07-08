@@ -1,11 +1,33 @@
 import Bleed from 'nextra-theme-docs/bleed'
 
-# Nextra
+demo
+[demo1](https://codesandbox.io/embed/n9vo1my91p)
+[demo2](https://codesandbox.io/embed/j0y0vpz59)
+[demo3](https://codesandbox.io/embed/01p1kxymow)
 
-**Nextra** is a [Next.js](https://nextjs.org) based static site generator.
+react-spring 是一个基于 弹簧物理学 的动画库，应该可以满足你大部分与 UI 相关的动画需求。 它为您提供了足够灵活的工具，可以自信地将您的想法转化为移动界面。
+这个库代表了一种现代的动画方法。 它的灵感来自 Christopher Chedeau 的"animated"和 成楼 的react-motion。 它继承了animated的强大的插值和性能，以及 react-motion 的易用性。 但是，虽然 animated 主要是命令性的，而 react-motion 主要是声明性的，但 react-spring 将两者联系起来。 您会惊讶地发现，使用小型、显式的效用函数可以轻松地将静态数据转化为动态，这些实用功能不会影响您形成视图的方式。
+## 安装
+```JavaScript
+yarn add react-spring
+```
 
-It supports Markdown and React components ([MDX](/features/mdx)), automatically generated [sidebar and anchor links](/get-started#sidebar-and-anchor-links), file-system based routing, built-in syntax highlighting, image optimization, custom layouts, i18n, and all the features you love about Next.js.
+## 平台
+react-spring 是跨平台的，它支持 web、react-native、react-native-web 和几乎任何其他平台，我们专门导出了以下目标（这些可以安装而不是整个模块以适合您的使用 案子）：
+## 浏览器支持
+该库是为常用浏览器编译的 es 模块，具有以下浏览器列表配置：>1%，not deat，not ie 11，not op_miniall。 如果您需要支持剩下的浏览器或不支持模块处理的浏览器，您可以简单地将 .cjs 附加到您的imports 来使用 commonJS 导出。
+## 为什么是弹簧而不是持续时间
+您将使用的原理称为弹簧，它没有定义的曲线或设定的持续时间。 因为它可能与您习惯的动画有很大不同。 我们从时间和曲线的角度来考虑动画，但这本身就导致了我们在试图让屏幕上的元素自然移动时面临的大部分困难，因为现实世界中没有任何东西会像那样移动。
+我们如此习惯于基于时间的动画，以至于我们认为挣扎是正常的，处理任意曲线、缓动、时间瀑布，更不用说让这一切保持同步了。 正如 Andy Matuschak（前 Apple UI-Kit 开发人员）曾经表达过的那样：由持续时间和曲线参数化的动画 API 从根本上反对连续、流畅的交互性。
+Springs 改变了这一点，动画变得简单易懂，默认情况下，你所做的一切看起来和感觉都很自然。 有关详细说明，请观看以下视频：
 
-Here's what you will get in 1 minute:
-
-<Bleed>![Nextra Example](../public/demo.png)</Bleed>
+<Bleed>
+  <iframe
+    width="100%"
+    height="430"
+    src="https://youtu.be/1tavDv5hXpo"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+  />
+</Bleed>

@@ -1,7 +1,5 @@
 {
-  "index": "Introduction",
-  "get-started": "Get Started",
-  "features": "Features",
-  "themes": "Themes",
-  "advanced": "Advanced"
+  "index": "安装",
+  "basic": "基础",
+  "api": "API"
 }
