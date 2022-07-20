@@ -1,7 +1,6 @@
 export default {
   github: 'https://github.com/cloudflypeng/react-spring-chinese-docs',
   docsRepositoryBase: 'https://github.com/cloudflypeng/react-spring-chinese-docs',
-  titleSuffix: ' – Nextra',
   logo: (
     <>
       <span className="mr-2 font-extrabold hidden md:inline">React-spring 中文文档</span>
@@ -12,6 +11,7 @@ export default {
   ),
   head: (
     <>
+      <title>React-spring</title>
       <meta name="baidu-site-verification" content="code-PQRVImVSE4" />
       <meta name="msapplication-TileColor" content="#ffffff" />
       <meta name="theme-color" content="#ffffff" />
