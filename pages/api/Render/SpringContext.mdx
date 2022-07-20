@@ -1,0 +1,45 @@
+
+```JavaScript
+修改给定子项中的动画，但仅影响由 hook API（例如：useSpring）或 renderprops API（例如：<Spring>）
+创建的动画。 使用 new SpringValue() 或 new Controller() 创建的动画不受影响。
+```
+```JavaScript
+<SpringContext cancel={true}>
+  <App />
+</SpringContext>
+```
+
+
+支持以下道具：
+
+- `cancel?: boolean`
+
+- `config?: SpringConfig` (see configs for more information)
+
+- `immediate?: boolean`
+
+- `pause?: boolean`
+
+
+SpringContext 组件可以在任何地方使用。
+
+最常见的用例是暂停或完成页面上的动画，而它对用户暂时不可见。 例如，用户可以导航离开具有动画内容的模式，该动画内容在隐藏时保持安装状态。
+
+嵌套上下文
+SpringContext 组件的后代可以使用 SpringContext 选择性地覆盖另一个 SpringContext 强制的任何道具。
+
+在下面的示例中，只有 Page2 可以播放其动画。 假装这个元素树被更动态地渲染，而这段代码是一个静态的表示。
+
+```JavaScript
+<SpringContext pause={true}>
+  <Page1 />
+  <SpringContext pause={false}>
+    <Page2 />
+  </SpringContext>
+  <Page3 />
+</SpringContext>
+```
+
+
+每个嵌套的 SpringContext 都继承了最近的 SpringContext 祖先的值。
+

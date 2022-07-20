@@ -1,0 +1,108 @@
+Spring 是可配置的并且可以调整。 如果你想调整这些设置，你应该提供一个配置属性来 useSpring:
+
+```JavaScript
+useSpring({ config: { duration: 250 }, ... })
+```
+
+
+从 v9 开始，现在可以部分更新配置属性：
+
+```JavaScript
+const { x } = useSpring({
+  from: { x: 0 },
+  config: { frequency: 1 },
+})
+useEffect(() => {
+  x.start({ config: { velocity: 0 } })
+  x.start({ config: { friction: 20 } })
+}, [])
+```
+
+
+并且我们已经增加可这些属性 `frequency`, `damping`, `round`, `bounce`, `progress` & `restVelocity`.
+
+|Property|Default|Description|
+|-|-|-|
+|mass|1|弹簧弥散|
+|tension|170|spring energetic load|
+|friction|26|弹簧能量负荷|
+|clamp|false|当为真时，一旦弹簧超过其边界就停止弹簧|
+|precision|0.01|在我们认为动画值“存在”之前，动画值与最终结果的接近程度，这对于弹簧动画很重要|
+|velocity|0|初始速度（有关重大更改，请参阅 v9 更改日志）。|
+|easing|t => t|默认情况下是线性的，你可以使用任何你想要的缓动，例如 d3-ease，我们已经包含了各种缓动参见这里|
+|damping|1|阻尼比，它决定了弹簧如何减速。 仅在定义频率时有效。 默认为 1。|
+|progress|0|当与 `duration` 一起使用时，它决定了缓动函数从多远开始。 持续时间本身不受影响。|
+|duration|undefined|如果 > 大于 0 将切换到基于持续时间的动画而不是弹簧物理，值应以毫秒为单位指示（例如，持续时间：250，持续时间为 250 毫秒）|
+|decay|undefined|衰减率的“数量”。 如果传递了`true`，则默认为 0.998|
+|frequency|undefined|固有频率（以秒为单位），它指示不存在阻尼时每秒的反弹次数。 定义时，“张力”由此派生，“摩擦”源自“张力”和“阻尼”。|
+|round|undefined|制作动画时，四舍五入到该数字的最接近的倍数。 `from` 和 `to` 值从不四舍五入，任何传递给动画值的`set` 方法的值也是如此。|
+|bounce|undefined|当高于零时，弹簧将在超过其目标值时反弹而不是超调。|
+|restVelocity|undefined|动画之前的最小速度被认为是“不移动”。 如果未定义，则使用“precision”代替。|
+
+## 预设
+
+还有一些通用预设将涵盖一些共同点。
+
+```JavaScript
+import { ..., config } from 'react-spring'
+
+useSpring({ ..., config: config.default })
+```
+
+
+|Property|Value|
+|-|-|
+|config.default|`{ mass: 1, tension: 170, friction: 26 }`|
+|config.gentle|`{ mass: 1, tension: 120, friction: 14 }`|
+|config.wobbly|`{ mass: 1, tension: 180, friction: 12 }`|
+|config.stiff|`{ mass: 1, tension: 210, friction: 20 }`|
+|config.slow|`{ mass: 1, tension: 280, friction: 60 }`|
+|config.molasses|`{ mass: 1, tension: 280, friction: 120 }`|
+
+### 缓动
+
+虽然 react-spring 应该是一个基于弹簧的动画库，但随着时间的推移，它随着一体化动画库的发展而发展。
+
+考虑到这一点，我们现在支持在设置持续时间时与配置一起使用的多种缓动函数。
+
+|In|Out|In Out|
+|-|-|-|
+|easeInBack|easeOutBack|easeInOutBack|
+|easeInBounce|easeOutBounce|easeInOutBounce|
+|easeInCirc|easeOutCirc|easeInOutCirc|
+|easeInCubic|easeOutCubic|easeInOutCubic|
+|easeInElastic|easeOutElastic|easeInOutElastic|
+|easeInExpo|easeOutExpo|easeInOutExpo|
+|easeInQuad|easeOutQuad|easeInOutQuad|
+|easeInQuart|easeOutQuart|easeInOutQuart|
+|easeInQuint|easeOutQuint|easeInOutQuint|
+|easeInSine|easeOutSine|easeInOutSine|
+
+这么用
+
+```JavaScript
+function EasingComponent() {
+  const { background, rotateZ } = useSpring({
+    from: {
+      background: '#46e891',
+      rotateZ: 0,
+    },
+    to: {
+      background: '#277ef4',
+      rotateZ: 225,
+    },
+    config: {
+      duration: 2000,
+      easing: easings.easeInOutQuart,
+    },
+    loop: { reverse: true },
+  })
+
+  return (
+    <animated.div
+      style={{ background, width: 120, height: 120, borderRadius: 16, rotateZ }}
+    />
+  )
+```
+
+

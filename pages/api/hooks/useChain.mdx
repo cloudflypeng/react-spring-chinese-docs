@@ -1,0 +1,42 @@
+概述
+
+```JavaScript
+import { useChain, animated } from 'react-spring'
+```
+
+
+设置先前定义的动画钩子的执行顺序，其中一个动画按顺序在另一个动画之后开始。 您需要从要链接的动画中收集 refs，这会阻止动画自行启动。 可以在后续渲染过程中更改顺序。
+
+```JavaScript
+// Build a spring and catch its ref
+const springRef = useSpringRef()
+const props = useSpring({ ...values, ref: springRef })
+// Build a transition and catch its ref
+const transitionRef = useSpringRef()
+const transitions = useTransition({ ...values, ref: transitionRef })
+// First run the spring, when it concludes run the transition
+useChain([springRef, transitionRef])
+// Use the animated props like always
+return (
+  <animated.div style={props}>
+    {transitions(styles => (
+      <animated.div style={styles} />
+    ))}
+  </animated.div>
+)
+```
+
+
+您可以选择定义 timeSteps 和 timeFrame（默认为一秒）。 timeSteps 只是一个偏移量在 0-1 之间的数组，对应于 timeFrame 的开始和结束。
+
+```JavaScript
+// The spring will start right away: 0.0 * 1000ms = 0ms
+// The transition will start after: 0.5 * 1000ms (the timeFrame default) = 500ms
+useChain([springRef, transitionRef], [0, 0.5] /*1000*/)
+```
+
+
+/
+
+
+

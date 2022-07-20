@@ -1,0 +1,19 @@
+🚧我们很乐意为此添加一些示例，请考虑提交 PR 🚧
+
+value.to 采用以下这样的对象：
+
+|Value|default|Description|
+|-|-|-|
+|extrapolateLeft|extend|Left extrapolate. Can be: identity/clamp/extend|
+|extrapolateRight|extend|Right extrapolate. Can be: identity/clamp/extend|
+|extrapolate|extend|Shortcut to set left and right-extrapolate|
+|range|[0,1]|Array of input ranges|
+|output|undefined|Array of mapped output ranges|
+|map|undefined|Value filter applied to input value|
+
+范围快捷方式：value.to([...inputRange], [...outputRange])
+
+或者一个函数：value.to(v => ...)
+
+
+

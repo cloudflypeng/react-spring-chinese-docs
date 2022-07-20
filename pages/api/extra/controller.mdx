@@ -1,0 +1,176 @@
+概述
+
+Controller 是 react-spring 的核心。 所有原语都在内部使用它（包括钩子）。 
+如果您不喜欢render- props，并且可能钩子对您来说过于激进，那么也许这就是您正在寻找的东西
+，因为它可以让您完全手动控制，而不必担心松散的动画句柄。 该 api 与 useSpring 钩子非常相似。
+
+```JavaScript
+import { Controller, animated } from 'react-spring'
+
+class Test extends React.Component {
+  state = { show: true }
+  animations = new Controller({ opacity: 0 })
+
+  toggle = () => this.setState(state => ({ show: !state.show }))
+
+  render() {
+    const props = this.animations.update({ opacity: this.state.show ? 1 : 0 })
+    return (
+      <>
+        <button onClick={this.toggle}>click</button>
+        <animated.div style={props}>I will fade</animated.div>
+      </>
+    )
+  }
+}
+```
+
+
+### 方法
+
+
+```JavaScript
+each((spring, key) => void): void
+每个弹簧值调用一次函数。
+controller.each((spring, key) =>
+  key === 'opacity' ? spring.set(1) : spring.set(0)
+)
+```
+
+
+
+```JavaScript
+get(): T
+获取我们弹簧的当前值。
+
+const springValues = controller.get()
+```
+
+
+
+
+```JavaScript
+pause(): this
+及时冻结活动动画。
+contoller.pause()
+```
+
+
+```JavaScript
+pause(keys): this
+及时冻结一些弹簧动画。
+contoller.pause(['opacity', 'color'])
+```
+
+
+
+
+```JavaScript
+resume(): this
+恢复活动动画。
+contoller.resume()
+```
+
+
+
+
+```JavaScript
+resume(keys): this
+恢复一些暂停的弹簧动画。
+contoller.resume(['opacity', 'color'])
+```
+
+
+```JavaScript
+set(values): void
+设置当前值而不设置动画。
+contoller.set({ opacity: 1, color: 0x0000ff })
+```
+
+
+
+```JavaScript
+
+start(): Promise<AnimationResult>
+每年spring 启动排队动画，并在所有排队动画完成或取消后解决返回的Promise。
+controller.start()
+```
+
+
+
+
+```JavaScript
+start(props): Promise<AnimationResult>
+当您传递一个队列（而不是什么都没有）时，将使用该队列而不是使用 update 方法添加的排队动画，这些动画被单独保留。
+controller.start({ opacity: 1, color: 0x0000ff })
+```
+
+
+### `stop(): this`
+
+```JavaScript
+Stop all animations.
+contoller.stop()
+```
+
+
+### `stop(keys): this`
+
+Stop animations for the given keys.
+
+```JavaScript
+contoller.stop(['opacity', 'color'])
+```
+
+
+### `stop(cancel, keys): this`
+
+Cancel animations for the given keys.
+
+```JavaScript
+contoller.stop(true, ['opacity', 'color'])
+```
+
+
+### `update(props): this`
+
+Push an update onto the queue of each value.
+
+```Plain Text
+contoller.update({ opacity: 1, color: 0x0000ff })
+```
+
+```Plain Text
+特性
+get idle(): boolean
+当两者都返回真：
+
+当前阶段不是 ACTIVE
+没有异步到 prop 处于活动状态
+简而言之，在没有动画的时候是真的。
+
+get item(): any
+
+返回与 Controller 关联的项目。 您可能不需要使用这么多。
+
+这仅在 useTransition hook & Transition render-props 组件中使用。
+
+set item(item): void
+
+设置控制器关联的项目。 您可能不需要使用这么多。
+
+这仅在 useTransition hook & Transition render-props 组件中使用。
+
+queue: SpringUpdate<T>[]
+
+待处理更新的队列。
+
+调用 .start() 刷新队列。
+
+ref?: SpringRef<T>
+注入的参考。 定义后，基于渲染的更新会被推送到队列中，而不是自动启动。
+
+springs: SpringValues<T>
+动画值
+```
+

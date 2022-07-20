@@ -1,0 +1,37 @@
+概述
+
+```JavaScript
+import { useTrail, animated } from 'react-spring'
+```
+
+
+使用单个配置创建多个弹簧，每个弹簧将遵循前一个。 将其用于交错动画。
+
+或者：覆盖值以更改动画
+如果您使用更改的props 重新渲染组件，动画将更新。
+
+```JavaScript
+const trail = useTrail(amount, { opacity: 1 })
+```
+
+
+或者：传递一个返回值的函数，并使用“set”进行更新
+您将获得一个 API 对象。 它不会导致组件像覆盖那样渲染（当然动画仍然执行）。 像这样处理更新对于快速发生的更新很有用，您通常应该更喜欢它，因为它更强大。 更多文档可以在 Imperatives & Refs 中找到
+
+```JavaScript
+const [trail, api] = useTrail(amount, () => ({ opacity: 1 }))
+
+// Update trail
+api.start({ opacity: 0 })
+// Stop trail
+api.stop()
+```
+
+
+### 最后：在视图之间分配动画props
+
+```JavaScript
+return trail.map(styles => <animated.div style={styles} />)
+```
+
+

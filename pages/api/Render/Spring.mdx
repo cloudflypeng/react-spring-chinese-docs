@@ -1,0 +1,110 @@
+概述
+
+```JavaScript
+import { Spring, animated } from 'react-spring'
+```
+
+
+将值转换为动画值。
+
+要么：覆盖值以更改动画
+如果您使用更改的props 重新渲染组件，动画将更新。
+
+```JavaScript
+<Spring opacity={toggle ? 1 : 0}>
+  {styles => ...}
+</Spring>
+```
+
+
+或者：传递一个 SpringRef 并使用 api 更新
+它不会导致组件像覆盖那样渲染（当然动画仍然执行）。 像这样处理更新对于快速发生的更新很有用，您通常应该更喜欢它，因为它更强大。 更多文档可以在 Imperatives & Refs 中找到
+
+```JavaScript
+const springRef = new SpringRef()
+
+springRef.start({
+  to: {
+    opacity: 1
+  }
+})
+
+<Spring ref={springRef} from={{ opacity: 0 }}>
+  {styles => ...}
+</Spring>
+```
+
+
+最后：在视图之间分配动画prop
+Spring 的 child 是一个 render prop 函数。
+
+```JavaScript
+styles => <animated.div style={styles}>i will fade</animated.div>
+```
+
+
+特性
+通用props中记录的所有属性都适用。
+
+补充说明
+prop 快捷方式
+```JavaScript
+Spring 无法识别的任何属性都将组合成“to”，例如 opacity: 1 将变为 to: { opacity: 1 }。
+```
+```JavaScript
+// This ...
+<Spring opacity={1} color={'red'} />
+// is a shortcut for this ...
+<Spring to={{ opacity: 1, color: 'red' }} />
+```
+
+
+异步链/脚本
+to prop 还允许您 1. 编写动画脚本，或 2. 将多个动画链接在一起。 由于这些动画将异步执行，因此请确保为基值提供 from 属性（否则，props 将为空）。、
+
+用脚本
+
+```JavaScript
+class AsyncExample extends PureComponent {
+  handleAsyncTo = async (next, cancel) => {
+    await next({ opacity: 1, color: '#ffaaee' })
+    await next({ opacity: 0, color: 'rgb(14,26,19)' })
+  }
+
+  render() {
+    // ...
+    return (
+      <Spring to={handleAsyncTo} from={{ opacity: 0, color: 'red' }}>
+        {styles => (
+          <animated.div style={styles}>I will fade in and out</animated.div>
+        )}
+      </Spring>
+    )
+  }
+}
+```
+
+
+用链
+
+```JavaScript
+class ChainExample extends PureComponent {
+  render() {
+    return (
+      <Spring
+        loop
+        from={{ opacity: 0, color: 'red' }}
+        to={[
+          { opacity: 1, color: '#ffaaee' },
+          { opacity: 0, color: 'rgb(14,26,19)' },
+        ]}>
+        {styles => (
+          <animated.div style={styles}>I will fade in and out</animated.div>
+        )}
+      </Spring>
+    )
+  }
+}
+```
+
+

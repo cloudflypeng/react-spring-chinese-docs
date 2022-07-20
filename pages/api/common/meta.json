@@ -1,3 +1,6 @@
 {
-
+  "props": "props",
+  "Configs": "Configs",
+  "refs": "命令和Refs",
+  "inter": "插值"
 }

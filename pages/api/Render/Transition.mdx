@@ -1,0 +1,120 @@
+概述
+
+```JavaScript
+import { Transition, animated } from 'react-spring'
+```
+
+
+一个动画转换组。 给它你的items和生命周期。 每当添加或删除项目时，它都会为这些更改设置动画。
+
+可以转换一个数组
+
+```JavaScript
+class TransitionArray extends PureComponent {
+  constructor() {
+    super()
+
+    this.state = {
+      items: NUM_TRANS,
+    }
+  }
+
+  componentDidUpdate(_, prevState) {
+    const { items: currItems } = this.state
+    const { items: prevItems } = prevState
+
+    if (currItems.length === 0 && prevItems.length !== currItems.length) {
+      setTimeout(() => {
+        this.setState({
+          items: NUM_TRANS,
+        })
+      }, 2000)
+    }
+  }
+
+  render() {
+    return (
+      <div style={{ display: 'flex' }}>
+        <Transition
+          items={this.state.items}
+          from={{ opacity: 0 }}
+          enter={{ opacity: 1 }}
+          leave={{ opacity: 0 }}
+          delay={200}
+          config={config.molasses}
+          onRest={() => this.setState({ items: [] })}>
+          {({ opacity }, item) => (
+            <animated.div
+              style={{
+                opacity: opacity.to(item.op),
+                transform: opacity
+                  .to(item.trans)
+                  .to(y => `translate3d(0,${y}px,0)`),
+              }}>
+              {item.fig}
+            </animated.div>
+          )}
+        </Transition>
+      </div>
+    )
+  }
+}
+```
+
+
+组件间触发
+
+```JavaScript
+class Toggle extends PureComponent {
+  constructor() {
+    super()
+
+    this.state = {
+      toggle: false,
+    }
+  }
+
+  render() {
+    const { toggle } = this.state
+    return (
+      <Transition
+        items={toggle}
+        from={{ opacity: 0 }}
+        enter={{ opacity: 1 }}
+        leave={{ opacity: 0 }}
+        reverse={toggle}
+        delay={200}
+        config={config.molasses}
+        onRest={() =>
+          this.setState({
+            toggle: !toggle,
+          })
+        }>
+        {({ opacity }, item) =>
+          item ? (
+            <animated.div
+              style={{
+                position: 'absolute',
+                opacity: opacity.to({ range: [0.0, 1.0], output: [0, 1] }),
+              }}>
+              😄
+            </animated.div>
+          ) : (
+            <animated.div
+              style={{
+                position: 'absolute',
+                opacity: opacity.to({ range: [1.0, 0.0], output: [0, 1] }),
+              }}>
+              🤪
+            </animated.div>
+          )
+        }
+      </Transition>
+    )
+  }
+}
+```
+
+
+// 同hooks中的useTransiton
+

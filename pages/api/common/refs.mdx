@@ -1,0 +1,114 @@
+虽然本节使用使用钩子的示例，但在类组件中使用 createRef 会得到相同的结果。
+
+## 命令式api
+
+旧的 api 看起来像这样：
+
+```JavaScript
+const [props, set, stop] = useSpring(() => ({ opacity: 1 }))
+
+// Update spring with new props
+set({ opacity: toggle ? 1 : 0 })
+```
+
+
+虽然这非常好，但它不是最好的 API，从 spring 返回的命令式 API 会阻止你挖掘正确的函数。 如果我们添加更多的 api 方法，它也使可扩展性更容易。
+
+但是，如果您真的喜欢旧的集合，从 9.1.0 开始，我们将第二个参数别名为调用 api.start，它是 v9 的 set 等价物。 这会给你一个弃用通知：
+
+```JavaScript
+function BackwardsCompatability() {
+  const [styles, api] = useSpring(() => ({
+    from: { x: -50, opacity: 1 },
+  }))
+
+  useEffect(() => {
+    api({
+      x: 50,
+      opacity: 1,
+      loop: { reverse: true },
+    })
+  }, [])
+
+  return (
+    <animated.div
+      style={{
+        width: 80,
+        height: 80,
+        backgroundColor: '#46e891',
+        borderRadius: 16,
+        ...styles,
+      }}
+    />
+  )
+}
+```
+
+
+### from 参数
+
+from 现在在命令式更新中表现不同。 定义后，它意味着 reset 属性为真。 以前，除非明确定义了 reset: true，否则 from 道具不会影响动画。
+
+为了防止这种行为，您可以定义 reset: false。
+
+```Plain Text
+const { x } = useSpring({ x: 0 })
+useEffect(() => {
+  // This animates as expected, from 100 to 0.
+  x.start({ from: 100, to: 0 })
+})
+```
+
+
+### API 方法
+
+设置为 SpringRef 或作为从弹簧返回的数组的第二个参数返回的 api 对象具有以下方法：
+
+```JavaScript
+const api = {
+    // start your animation optionally giving new props to merge e.g. a `to` object
+    start: (props) => AnimationResult,
+    // sets the spring to specific passed values
+    set: (props) => void,
+    // Add props to each controller's update queue.
+    update: (props) => this,
+    // Add a controller to the springRef
+    add: (ctrl) => this,
+    // Delete a controller from the springRef
+    delete: (ctrl) => this,
+    // Cancel some or all animations depending on the keys passed, no keys will cancel all.
+    stop: (cancel, keys) => this,
+    // pause specific spring keys of the spring function
+    pause: (keys) => this,
+    // resume specific spring keys of the spring function
+    resume: (keys) => this,
+}
+```
+
+
+## 使用 Refs
+
+介绍useSpringRef！ 在以下情况下useSpringRef的库版本来代替 useRef：
+
+```JavaScript
+const springRef = useSpringRef()
+
+const { size, ...rest } = useSpring({
+  ref: springRef,
+  config: config.stiff,
+  from: { size: '20%', background: 'hotpink' },
+  to: {
+    size: '100%',
+    background: 'white',
+  },
+})
+
+useEffect(() => {
+  // this will give you access to the same API documented above
+  console.log(springRef.current)
+}, [])
+```
+
+
+在内部，ref 使用 add 方法添加了 Controller。 因此，使用 useRef 会抛出错误。 这在使用 useChain 时特别有用。
+

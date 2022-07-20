@@ -1,0 +1,42 @@
+概述
+
+```JavaScript
+import { useSprings, animated } from 'react-spring'
+```
+
+
+创建多个弹簧，每个弹簧都有自己的配置。 将其用于静态列表等。
+
+```JavaScript
+const springs = useSprings(
+  number,
+  items.map(item => ({ opacity: item.opacity }))
+)
+```
+
+
+### 或者：传递一个返回值的函数，并使用 API 更新
+
+您将获得更新函数。 它不会导致组件像覆盖那样渲染（当然动画仍然会执行）。 像这样处理更新对于快速发生的更新很有用，但您通常应该更喜欢它。 可选地，还有一个停止函数作为第三个参数。
+
+
+```JavaScript
+const [springs, api] = useSprings(number, index => ({ opacity: 1 }))
+
+// Update springs with new props
+api.start(index => ({ opacity: 0 }))
+// Stop all springs
+api.stop()
+```
+
+
+#### 最后：在视图之间分配动画props
+
+返回值是一个包含动画props的数组。
+
+
+```JavaScript
+return springs.map(styles => <animated.div style={styles} />)
+```
+
+

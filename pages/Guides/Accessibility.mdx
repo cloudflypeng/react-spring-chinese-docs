@@ -1,0 +1,62 @@
+## 为什么构建可访问的动画很重要？
+
+react-spring 使构建动画变得简单，但重要的是要确保那些不喜欢动画的人仍然可以访问您的站点/应用程序。
+
+前庭功能障碍是一种内耳平衡障碍，在美国成年人中非常普遍。 2000 年初的一项研究发现，大约 6900 万美国人患有前庭功能障碍，导致眩晕、恶心、偏头痛和听力丧失。 许多受前庭功能障碍影响的人会选择在他们的操作系统中设置“减少运动”设置。 在 macOS 中，它位于辅助功能设置中。
+
+
+
+
+
+将 skipAnimation 与 prefers-reduced-motion 结合使用可以优雅地禁用或减少动画的运动。 react-reduce-motion 是一个跨平台的钩子，它公开了这个操作系统级别的设置，使您能够为想要退出的用户禁用或减少动画。
+
+要使用这个钩子禁用动画，你可以使用 react-spring 的 skipAnimation 全局：
+
+```JavaScript
+import { useReducedMotion } from 'react-reduce-motion'
+import { Globals } from 'react-spring'
+
+const MyApp = () => {
+  const prefersReducedMotion = useReducedMotion()
+  React.useEffect(() => {
+    Globals.assign({
+      skipAnimation: prefersReducedMotion,
+    })
+  }, [prefersReducedMotion])
+  // ...
+}
+```
+
+
+动画也可以使用 immediate 属性逐个禁用。
+
+```JavaScript
+import { useReducedMotion } from 'react-reduce-motion'
+
+const MyComponent = () => {
+  const prefersReducedMotion = useReducedMotion()
+  const props = useSpring({ opacity: 1, immediate: prefersReducedMotion })
+  // ...
+}
+```
+
+
+最后，可以通过应用您自己的启发式思想来减少动画
+
+```JavaScript
+import { useReducedMotion } from 'react-reduce-motion'
+
+const MyComponent = () => {
+  const prefersReducedMotion = useReducedMotion()
+  const props = useSpring({
+    scale: prefersReducedMotion ? '1.05' : '2',
+  })
+  // ...
+}
+```
+
+
+Check out react-reduce-motion to learn more.
+
+
+

@@ -1,5 +1,6 @@
 {
-  "index": "安装",
+  "index": "介绍",
   "basic": "基础",
-  "api": "API"
+  "Api": "API",
+  "Guides": "指南"
 }

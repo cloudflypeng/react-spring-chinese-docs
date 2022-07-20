@@ -1,0 +1,188 @@
+概述
+
+```JavaScript
+import { useTransition, animated } from 'react-spring'
+```
+
+
+一个动画转换组。 给它你的items和生命周期。 每当添加或删除项目时，它都会为这些更改设置动画。
+
+### 您可以转换数组
+
+```JavaScript
+function TransitionArray() {
+  const [items, setItems] = useState(NUM_TRANS)
+
+  const transitions = useTransition(items, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+    delay: 200,
+    config: config.molasses,
+    onRest: () => setItems([]),
+  })
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setTimeout(() => {
+        setItems(NUM_TRANS)
+      }, 2000)
+    }
+  }, [items])
+
+  return (
+    <div style={{ display: 'flex' }}>
+      {transitions(({ opacity }, item) => (
+        <animated.div
+          style={{
+            opacity: opacity.to(item.op),
+            transform: opacity
+              .to(item.trans)
+              .to(y => `translate3d(0,${y}px,0)`),
+          }}>
+          {item.fig}
+        </animated.div>
+      ))}
+    </div>
+  )
+}
+```
+
+
+转换函数接受一个回调，该回调接收四个参数：动画值、项目、转换对象和兄弟位置。
+
+它返回一个 React 片段，其中包含回调返回的每个元素。 正如您可能假设的那样，离开动画中间的元素需要保持挂载。
+
+无论您是否明确定义，片段中的所有元素都保证有一个 key prop。 Unkeyed 元素将使用其 Transition 对象中的 ctrl.id。
+
+对于每个唯一的项目键，都存在一个 Transition 对象。 只有当它作为转换回调的第三个参数传递时，才能访问转换对象。
+
+```JavaScript
+const elems = transition((style, item, t, i) => (
+  <a.div style={style}>{t.phase}</a.div>
+))
+```
+
+
+## Properties
+
+|Property|Type|Description|
+|-|-|-|
+|initial|obj/fn|Initial (first time) base values, optional (can be null)|
+|from|obj/fn|Base values, optional|
+|enter|obj/fn/array(obj)|Styles apply for entering elements|
+|update|obj/fn/array(obj)|Styles apply for updating elements (you can update the hook itself with new values)|
+|leave|obj/fn/array(obj)|Styles apply for leaving elements|
+|trail|number|Delay in ms before the animation starts, adds up for each enter/update and leave|
+|reset|bool/fn|Prefers the `initial` prop over the `from` prop.|
+|keys|array/function|See keys for more information|
+|key|single item|Only use if you're passing a single item to `useTransition` see keys for more information|
+|expires|bool/number|Lets you control when removed items are unmounted (after their `leave` animation has finished) see expires for more information|
+|sort|fn|Useful shortcut for slicing and sorting your items array before passing it to the `useTransition` hook|
+|exitBeforeEnter|bool|Ensures any items leaving animate out before the new items animate in|
+
+keys
+每个 Transition 对象都有一个唯一的键来标识它。 您可以选择定义显式键或让“项目”（Transition 对象表示的值）成为它自己的键。
+
+要定义显式键，您必须在 useTransition 道具中定义 keys props。 例如，当使用 items 数组时，新的 keys 属性可以是：
+
+一组键
+或者一个映射函数，它为给它的任何项目返回一个键。
+
+```JavaScript
+useTransition(items, {
+  // Using a function
+  keys: item => item.key,
+  // Using an array created by lodash.map
+  keys: _.map(items, 'key'),
+})
+```
+
+
+⚠️ 对于不可变对象的任何项目，您必须使用显式键。
+
+对可变对象使用显式键是不必要的。 🥳
+
+如果您将单个项目传递给 useTransition，则可以选择将单个键作为 key prop 传递。
+
+```JavaScript
+useTransition(item, {
+  key: item.key,
+})
+
+```
+
+
+#### 过期(expires)
+```JavaScript
+expires 属性让您可以控制何时卸载已移除的项目（在离开动画完成后）。 默认情况下，卸载被推迟到下一次渲染或直到所有转换都停止。
+
+当 true 或 <= 0 时，使用默认行为。
+
+如果为 false，则永远不会卸载物品。
+
+当 > 0 时，如果调用 useTransition 的组件在项目的离开动画完成后没有自行重新渲染，则在 setTimeout 调用中使用此 prop 来强制重新渲染。
+
+最后， expires 属性可以是一个接收项目并返回上述任何值的函数。
+
+### 排序(Sort)
+
+sort prop 是一个接受两个项目的函数，当第一个项目应该首先出现时返回 -1，当第二个项目应该出现时返回 1。
+
+在将 items 数组传递给 useTransition 钩子之前，它是对它进行切片和排序的有用快捷方式。
+```
+```JavaScript
+// v8
+useTransition(items.slice().sort(props.sort), null, props)
+
+// v9
+useTransition(items, {
+  sort: (a, b) => { ... },
+  ...props
+})
+```
+
+
+### 补充说明
+
+
+### 多阶段过渡
+
+
+初始/从/进入/更新/离开生命周期可以是对象、数组或函数。 当您提供功能时，您可以访问各个项目。 该函数允许返回普通对象，或者一个数组或一个用于多阶段转换的函数。 当您提供一个普通数组时，您还可以形成一个基本的多阶段转换（无需访问该项目）。
+
+```JavaScript
+useTransition(items, {
+  enter: item => [
+    { opacity: item.opacity, height: item.height },
+    { life: '100%' },
+  ],
+  leave: item => async (next, cancel) => {
+    await next({ life: '0%' })
+    await next({ opacity: 0 })
+    await next({ height: 0 })
+  },
+  from: { life: '0%', opacity: 0, height: 0 },
+})
+```
+
+
+### 在Router之间转换
+
+```JavaScript
+const location = useLocation()
+const transitions = useTransition(location, { ... })
+return transitions((props, item) => (
+  <animated.div style={props}>
+    <Routes location={item}>
+      <Route path="/a" element={<A />} />
+      <Route path="/b" element={<B />} />
+      <Route path="/c" element={<C />} />
+    </Routes>
+  </animated.div>
+))
+```
+
+
+
+

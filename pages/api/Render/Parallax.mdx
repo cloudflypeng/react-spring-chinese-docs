@@ -1,0 +1,93 @@
+概述
+
+```JavaScript
+import { Parallax, ParallaxLayer } from '@react-spring/parallax'
+```
+
+
+Parallax 创建一个可滚动的容器。 ParallaxLayers 包含您的内容，并将根据它们的偏移量和速度移动。
+
+注意：目前，仅支持 @react-spring/web。
+
+```JavaScript
+<Parallax pages={2} style={{ top: '0', left: '0' }}>
+  <ParallaxLayer
+    offset={0}
+    speed={2.5}
+    style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <p>Scroll down</p>
+  </ParallaxLayer>
+
+  <ParallaxLayer offset={1} speed={2} style={{ backgroundColor: '#ff6d6d' }} />
+
+  <ParallaxLayer
+    offset={1}
+    speed={0.5}
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      color: 'white',
+    }}>
+    <p>Scroll up</p>
+  </ParallaxLayer>
+</Parallax>
+```
+
+
+## Parallax
+
+|Property|Type|Description|
+|-|-|-|
+|pages|number|Total space of the container. Each page takes up 100% of the viewport.|
+|config?|SpringConfig|The spring behavior. Defaults to `config.slow` (see configs).|
+|enabled?|boolean|Whether or not the content can be scrolled. Defaults to `true`.|
+|horizontal?|boolean|Whether or not the container scrolls horizontally. Defaults to `false`.|
+|innerStyle?|CSSProperties|CSS object to style the inner `Parallax` wrapper (not the scrollable container)|
+
+### `ref` Properties
+
+Parallax 还有一些有用的属性，您可以使用 ref 访问它们：
+
+```JavaScript
+const ref = useRef()
+...
+<Parallax ref={ref}>
+```
+
+
+#### `ref.current.scrollTo`
+
+点击滚动的功能。 它需要一个参数：要滚动到的页面的编号。 页面是零索引的，因此`scrollTo(0)` 会滚动到第一页，`scrollTo(1)` 会滚动到第二页，依此类推。
+
+#### `ref.current.container`
+
+`Parallax` 的外部容器 `div` 的 `ref`，用于当您需要访问实际 DOM 元素时。
+**注意**：因为它也是一个 `ref`，所以必须使用 `ref.current.container.current` 访问它。
+
+#### `ref.current.content`
+
+`Parallax`的内部容器`div`的`ref`。
+
+### 使用说明
+
+Parallax 的所有直接子级必须是 ParallaxLayers（或仅直接子级为 ParallaxLayers 的片段）。
+Parallax 是一个可滚动的容器，因此所有滚动事件都是从容器本身触发的——侦听窗口上的滚动将不起作用（但您可以使用 ref.current.container）。
+
+#### ParallaxLayer
+
+||||
+|-|-|-|
+|factor?|number|Size of the layer relative to page size (eg: `1` => 100%, `1.5` => 150%, etc). Defaults to `1`.|
+|offset?|number|The offset of the layer when it's corresponding page is fully in view (eg: `0` => top of 1st page, `1` => top of 2nd page, etc ). Defaults to `0`.|
+|speed?|number|Rate at which the layer moves in relation to scroll. Can be positive or negative. Defaults to `0`.|
+|horizontal?|boolean|Whether or not the layer moves horizontally. Defaults to the `horizontal` value of `Parallax` (whose default is `false`).|
+|sticky?|StickyConfig|If set, the layer will be 'sticky' between the two offsets. All other props are ignored. Default: `{start?: number = 0, end?: number = start + 1}`|
+
+使用说明
+offset 属性是图层结束的地方，而不是开始的地方。 例如，如果图层的偏移量为 1.5，则当第二页完全填满视口时，它将位于第二页的中间（零索引）。
+speed 属性会影响图层的初始起始位置，但不会影响它的最终偏移位置。
+任何具有粘性集的层都将具有高于常规层的 z-index。 这可以手动更改。
+
+
+

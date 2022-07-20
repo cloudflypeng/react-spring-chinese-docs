@@ -1,0 +1,129 @@
+命令式 API 是一种很好的动画响应事件的方式，不需要组件状态（即：基于渲染的更新）。 从这个意义上说，SpringValue 类是对 react-spring 的一个受欢迎的补充。
+
+介绍
+创建动画值。 任何类型都是有效的，但只有某些类型实际上是动画的。
+
+props 参数可以是..
+
+  一个 value
+或一组 useSpring props。
+
+不能动画的类型基本上是即时的：真正的动画。 此类类型包括：布尔值、显示字符串（如“none”）等。
+
+动画类型是：
+
+数字
+
+```JavaScript
+new SpringValue(0)
+```
+
+
+带数字的字符
+
+```JavaScript
+new SpringValue('0px 10px')
+new SpringValue('rgba(0, 0, 255, 1)')
+```
+
+
+有名字的颜色
+
+```JavaScript
+new SpringValue('red')
+```
+
+
+和上述类型的数组
+
+```JavaScript
+new SpringValue([0, '1em'])
+```
+
+
+## 方法
+
+```JavaScript
+// get(): T 获取当前值
+const value = spring.get()
+// set(values): this 设置当前值，替换目标值，停止动画。
+spring.set(1)
+// update(props): this 向队列数组添加更新。 同时应用队列中的所有更新。
+const delays = [0, 100, 300]
+for (const delay of delays) {
+  spring.update({ x: delay })
+}
+spring.start()
+// start(): Promise
+// 处理队列数组并将其替换为空数组。
+// 返回的 Promise 在队列数组触发的每个动画完成或被取消后解析。
+await spring.start()
+await spring.start({ from: 0, to: 1 })
+//start(queue): Promise
+// 处理给定的更新数组。
+// 返回的 Promise 解析为 AnimationResult 对象，其：
+// 仅当队列触发的每个动画在停止或取消之前完成时，finished 属性才为真。
+// 仅当队列中的所有更新从未取消时，cancel 属性才为 false。
+// prettier-ignore
+await spring.start([
+  { from: 0 },
+  { to: 10 },
+  { to: 20, delay: 1000 },
+])
+// 立即跳转到给定值，并以与 .finish() 相同的方式调用 onStart 和 onRest 属性。
+spring.finish()
+spring.finish(100)
+// 停止动画并取消任何延迟的更新。
+// 目标值替换为当前值。
+spring.stop()
+spring.reset()
+// 将当前动画前进给定的 dt（以毫秒为单位）。
+// 你可能永远不会调用它。
+// Advance a single frame.
+spring.advance(1000 / 60)
+// 检查给定的阶段。
+if (spring.is('PAUSED')) {
+  return
+}
+有效阶段包括：
+
+CREATED spring自创建以来从未有动画。
+IDLE spring 完成动画。
+ACTIVE spring正在动画。
+PAUSED spring正在动画，但现在已暂停。
+DISPOSED spring无法再活化。
+```
+
+
+特性
+
+```JavaScript
+由其所有者赋予 SpringValue 对象的名称。
+
+对于 Controller 对象，每个 SpringValue 的键是来自 to 或 from 对象属性的属性名称。
+
+定义后， to 属性可以是一个对象，此键定义为属性。
+spring.key = 'foo'
+spring.start({ to: { foo: '180deg' } })
+// ---
+get idle(): boolean
+当两者都成立时返回真：
+  当前阶段不是 ACTIVE
+  没有异步到 prop 处于活动状态
+简而言之，在没有动画的时候是真的。
+// ---
+get goal(): T
+当前动画的结束值。
+// ---
+get velocity(): number | number[]
+当前动画的速度。
+// ---
+animation: Animation
+动画描述符。
+// ---
+queue?: SpringUpdate<T>[]
+待处理更新的队列。
+调用 .start() 刷新队列。
+```
+
+

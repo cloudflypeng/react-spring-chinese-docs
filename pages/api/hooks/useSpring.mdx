@@ -1,0 +1,99 @@
+概述
+
+```JavaScript
+import { useSpring, animated } from 'react-spring'
+```
+
+
+将值转换为动画值。
+
+## 要么：覆盖值以更改动画
+
+如果您使用更改的props 重新渲染组件，动画将更新。
+
+```JavaScript
+const styles = useSpring({ opacity: toggle ? 1 : 0 })
+```
+
+
+### 或者：传递一个返回值的函数，并使用api更新
+
+您将获得一个 API 对象。 它不会导致组件像覆盖那样渲染（当然动画仍然执行）。 像这样处理更新对于快速发生的更新很有用，您通常应该更喜欢它，因为它更强大。 更多文档可以在 Imperatives & Refs 中找到
+
+```JavaScript
+const [styles, api] = useSpring(() => ({ opacity: 1 }))
+
+// Update spring with new props
+api.start({ opacity: toggle ? 1 : 0 })
+// Stop animation
+api.stop()
+```
+
+
+## 最后：在视图之间分配动画道具
+
+返回值是一个包含动画道具的对象。
+
+```JavaScript
+return <animated.div style={styles}>i will fade</animated.div>
+```
+
+
+## 特性
+
+通用props中记录的所有属性都适用。
+
+### 补充说明
+props 快捷方式
+```JavaScript
+任何 useSpring 无法识别的属性都将组合成“to”，例如 opacity: 1 将变为 to: { opacity: 1 }。
+```
+```JavaScript
+// This ...
+const props = useSpring({ opacity: 1, color: 'red' })
+// is a shortcut for this ...
+const props = useSpring({ to: { opacity: 1, color: 'red' } })
+```
+
+
+## 异步链/脚本
+```JavaScript
+to prop还允许您 1. 编写动画脚本 2. 将多个动画链接在一起。 由于这些动画将异步执行，因此请确保为基值提供 from 属性（否则，props 将为空）。
+
+在频繁呈现的组件中使用异步功能时，您需要记住您的功能以防止意外重启。
+
+一种解决方案是使用 useCallback 挂钩。
+```
+```JavaScript
+useSpring({
+  to: useCallback(async next => { ... }, []),
+})
+```
+
+
+另一个解决方法是传一个函数
+
+```JavaScript
+useSpring(() => ({
+  to: async next => { ... },
+}))
+```
+
+
+创建一个脚本
+
+```JavaScript
+function AsyncExample() {
+  const styles = useSpring({
+    to: async (next, cancel) => {
+      await next({ opacity: 1, color: '#ffaaee' })
+      await next({ opacity: 0, color: 'rgb(14,26,19)' })
+    },
+    from: { opacity: 0, color: 'red' },
+  })
+  // ...
+  return <animated.div style={styles}>I will fade in and out</animated.div>
+}
+```
+
+
